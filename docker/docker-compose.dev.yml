@@ -1,0 +1,65 @@
+# ── Development override ────────────────────────────────────────
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Changes from production:
+#  - Hot-reload for backend (mounts source code)
+#  - Vite dev server for frontend (with HMR)
+#  - DEBUG=True, detailed logs
+#  - No nginx (direct port access)
+#  - pgAdmin & RedisInsight for DB inspection
+
+version: "3.9"
+
+services:
+
+  api:
+    build:
+      target: development        # use dev stage in Dockerfile
+    volumes:
+      - ./backend:/app           # mount source for hot-reload
+      - ml_models:/app/ml_models
+      - uploads:/app/uploads
+    environment:
+      DEBUG:       "True"
+      ENVIRONMENT: development
+      RELOAD:      "True"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"              # direct access in dev
+
+  frontend:
+    build:
+      target: development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules        # exclude host node_modules
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - "5173:5173"              # Vite dev server with HMR
+    environment:
+      VITE_API_URL: http://localhost:8000
+
+  # Disable nginx in dev — access services directly
+  nginx:
+    profiles: ["prod-only"]      # never starts in dev
+
+  # pgAdmin — visual DB browser
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: cit_pgadmin
+    networks: [can_i_trust_net]
+    environment:
+      PGADMIN_DEFAULT_EMAIL:    admin@local.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on: [postgres]
+
+  # RedisInsight — visual Redis browser
+  redis_insight:
+    image: redislabs/redisinsight:latest
+    container_name: cit_redis_insight
+    networks: [can_i_trust_net]
+    ports:
+      - "8001:8001"
+    depends_on: [redis]
