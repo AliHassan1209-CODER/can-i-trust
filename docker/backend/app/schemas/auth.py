@@ -46,3 +46,8 @@ class UserResponse(BaseModel):
     avatar_url: Optional[str] = None
 
     model_config = {"from_attributes": True}
+
+
+class VerifyOTP(BaseModel):
+    email: EmailStr
+    otp: str

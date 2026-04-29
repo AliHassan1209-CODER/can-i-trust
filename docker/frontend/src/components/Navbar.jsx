@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import toast from 'react-hot-toast'
@@ -7,11 +8,13 @@ export default function Navbar() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const [showMenu, setShowMenu] = useState(false)
 
   const handleLogout = () => {
     logout()
     toast.success('Logged out')
     navigate('/login')
+    setShowMenu(false)
   }
 
   const initials = user?.full_name
@@ -23,7 +26,6 @@ export default function Navbar() {
       <Link to="/dashboard" className="nav-logo">
         Can I <span>Trust?</span>
       </Link>
-
       <div className="nav-links">
         <Link to="/dashboard" className={`nav-link ${pathname === '/dashboard' ? 'active' : ''}`}>
           Dashboard
@@ -32,15 +34,28 @@ export default function Navbar() {
           History
         </Link>
       </div>
-
       <div className="nav-right">
         <Link to="/checker" className="nav-check-btn">
           <span className="btn-dot" />
           Fake News Check
         </Link>
-        <button className="nav-avatar" title={user?.full_name} onClick={handleLogout}>
-          {initials}
-        </button>
+        <div className="nav-avatar-wrap">
+          <button className="nav-avatar" title={user?.full_name} onClick={() => setShowMenu(!showMenu)}>
+            {initials}
+          </button>
+          {showMenu && (
+            <div className="nav-dropdown">
+              <div className="nav-dropdown-user">
+                <div className="nav-dropdown-name">{user?.full_name}</div>
+                <div className="nav-dropdown-email">{user?.email}</div>
+              </div>
+              <hr className="nav-dropdown-divider" />
+              <button className="nav-dropdown-item" onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   )

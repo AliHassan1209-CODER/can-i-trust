@@ -47,5 +47,8 @@ email-validator==2.1.1
 # Rate Limiting
 slowapi==0.1.9
 
+# Email
+fastapi-mail==1.4.1
+
 # Logging
 loguru==0.7.2

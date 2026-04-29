@@ -42,6 +42,13 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE_MB: int = 10
     UPLOAD_DIR: str = "./uploads"
 
+    # ── Email ───────────────────────────────────────────────────
+    MAIL_USERNAME: str = ""
+    MAIL_PASSWORD: str = ""
+    MAIL_FROM: str = ""
+    MAIL_SERVER: str = "smtp.gmail.com"
+    MAIL_PORT: int = 587
+
     # ── Rate Limiting ───────────────────────────────────────────
     RATE_LIMIT_PER_MINUTE: int = 30
     RATE_LIMIT_ANALYZE: int = 10
